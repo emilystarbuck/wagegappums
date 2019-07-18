@@ -1,16 +1,26 @@
-# wagegappums
+# Wage Gap PUMS
 R code to generate confidence measures for wage gap analysis
 This tutorial explains how to download ACS microdata from IPUMS, generate confidence measures in R, and visualize the data with Tableau for a wage gap analysis.
 
 Download and extract the data from IPUMS
-•	Select which sample year you want to use and whether it’s 1 year or 5 year data (5 year data recommended)
+
+Select which sample year you want to use and whether it’s 1 year or 5 year data (5 year data recommended)
+
 •	Select the following variables for your extract:
+
 o	Household>Geographic: MET2013 (or other geography variable)
+
 o	Person>Technical: REPWTP (replicate weights)
+
 o	Person>Demographic: SEX, AGE
+
 o	Person>Race, Ethnicity & Nativity: RACE, HISPAN
+
 o	Person>Work: OCC2010, WKSWORK2 (weeks worked last year), UHRSWORK (usual hours worked per week)
+
 o	Person>Income: INCWAGE (wage and salary income)
+
+
 •	On the create extract page:
 o	Change data format from .dat to .csv
 o	Select cases to limit age to 16+ and geography to Portland MSA (this reduces the size of your extract)
