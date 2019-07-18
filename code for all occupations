@@ -15,10 +15,11 @@ options(scipen = 999)
 #Number of printed decimal places
 options(digits = 2)
 
-#Set working directory to the correct file location
+#Set working directory to the correct folder location on your computer
 setwd("~/Desktop/WageGap")
 
 #Read PUMS file, set column type, and convert column names to lower case
+#change "usa_00015.csv" to the name of your PUMS file
 or_pums <- fread("usa_00015.csv",colClasses = 
                 c("SERIAL"="character",
                   "MET2013"="character"))
