@@ -1,0 +1,55 @@
+if(!require(pacman)){install.packages("pacman");library(pacman)}
+p_load(tidyverse, data.table, survey, srvyr, knitr)
+
+#necessary setup
+#String variables brought in as factors for analysis
+options(stringsAsFactors = T)
+#Variances centered around the estimate rather than the mean of the replicate weights
+options(survey.replicates.mse = T)
+#fread creates data.frames instead of data.tables
+options(datatable.fread.datatable = F)
+#Clear environment
+rm(list=ls())
+#Remove scientific notation
+options(scipen = 999)
+#Number of printed decimal places
+options(digits = 2)
+
+#Set working directory to the correct file location
+setwd("~/Desktop/WageGap")
+
+#Read PUMS file, set column type, and convert column names to lower case
+or_pums <- fread("usa_00015.csv",colClasses = 
+                c("SERIAL"="character",
+                  "MET2013"="character"))
+colnames(or_pums)<-tolower(colnames(or_pums))
+
+#Add full-time/part-time factor
+or_pums <- or_pums %>% mutate(weeks_worked = if_else(wkswork2==6,1,0),
+                              work_status = factor(case_when(weeks_worked==1 & uhrswork>=35 ~ "full_time",
+                                                             uhrswork<35|weeks_worked==0 ~ "part_time"),
+                                                   levels = c("full_time", "part_time")))
+
+#convert sex variable to factor
+or_pums <- or_pums %>% mutate(sex = factor(case_when(sex==1 ~ "1",
+                                                     sex==2 ~ "2"),
+                                           levels = c("1", "2")))
+#Set survey design to calculate SE
+pums_design <- or_pums %>% as_survey_rep(weights=perwt,
+                                     repweights=starts_with("repwtp"),
+                                     combined_weights=T,
+                                     type="JK1",
+                                     scale=4/80,
+                                     rscales=ncol('wgtp[0-9]+'))
+
+#full time employment by sex and occupation with SE
+kable(pums_design %>% group_by(occ2010,sex) %>%
+        summarise(total_emp=survey_total(na.rm=T)) %>% 
+        arrange(sex,occ2010))
+
+#export output into a csv file 
+write.csv(data.frame(pums_design %>% group_by(occ2010,sex) %>%
+                          summarise(total_emp=survey_total(na.rm=T)) %>% 
+                          arrange(sex,occ2010)), "occs_with_se.csv")
+
+#open in excel and calculate CV = (total_emp_se/total_emp)
